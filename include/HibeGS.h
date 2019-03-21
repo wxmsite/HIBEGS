@@ -3,7 +3,7 @@
  * @LastEditors: wxmsite
  * @Description: 
  * @Date: 2019-03-17 14:59:48
- * @LastEditTime: 2019-03-21 11:01:53
+ * @LastEditTime: 2019-03-21 17:14:07
  */
 #include "relic_api.h"
 #include "forwardsec.h"
@@ -75,7 +75,7 @@ protected:
 	relicxx::G2 hibeg1;
 	std::vector<relicxx::G1> hG1;
 	std::vector<relicxx::G2> hG2;
-	ZR n;
+	relicxx::GT n;
 	template <class Archive>
 	  void serialize( Archive & ar )
 	{
@@ -99,57 +99,14 @@ public:
 protected:
 	relicxx::G2 c0;
 	relicxx::G2 c5;
-	relicxx::G2 c6;
-	relicxx::G2 e1;
-	relicxx::G2 e2;
-	relicxx::G2 e3;
+	relicxx::G1 c6;
+	relicxx::G1 e1;
+	relicxx::G1 e2;
+	relicxx::GT e3;
 	template <class Archive>
 	  void serialize( Archive & ar )
 	{
 		ar(c0,c5,c6,e1,e2,e3);
-	}
-	friend class ::cereal::access;
-	friend class GMPfse;
-	friend class HibeGS;
-};
-class HibeGSPartialCiphertext{
-public:
-	HibeGSPartialCiphertext(){};
-
-	friend bool operator==(const HibeGSPartialCiphertext& x,const HibeGSPartialCiphertext& y){
-		return x.B == y.B && x.C == y.C;
-	}
-	friend bool operator!=(const HibeGSPartialCiphertext& x,const HibeGSPartialCiphertext& y){
-		return !(x==y);
-	}
-protected:
-	relicxx::G1 B;
-	relicxx::G1 C;
-	template <class Archive>
-	void serialize( Archive & ar ){
-		ar(B,C);
-	}
-	friend class ::cereal::access;
-	friend class GMPfse;
-	friend class HibeGS;
-};
-
-class HibeGSCiphertext: public HibeGSPartialCiphertext{
-public:
-	HibeGSCiphertext(){};
-	HibeGSCiphertext(const  HibeGSPartialCiphertext & c) : HibeGSPartialCiphertext(c){}
-
-	friend bool operator==(const HibeGSCiphertext& x,const HibeGSCiphertext& y){
-		return x.A == y.A  && (HibeGSPartialCiphertext) x == (HibeGSPartialCiphertext) y;
-	}
-	friend bool operator!=(const HibeGSCiphertext& x,const HibeGSCiphertext& y){
-		return !(x==y);
-	}
-protected:
-	relicxx::GT A;
-	template <class Archive>
-	void serialize( Archive & ar ){
-		ar(::cereal::base_class<HibeGSPartialCiphertext>(this),A);
 	}
 	friend class ::cereal::access;
 	friend class GMPfse;
@@ -175,7 +132,7 @@ class HibeGS{
 	* } 
   * @return: 
   */
-	void GroupSetup(const char* GroupID ,const relicxx::G2& msk, GroupSecretKey& gsk ,const MasterPublicKey& mpk);
+	void GroupSetup(const std::string GroupID ,const relicxx::G2& msk, GroupSecretKey& gsk ,const MasterPublicKey& mpk);
 	/**
   * @description: 
   * @param {
@@ -194,7 +151,10 @@ class HibeGS{
   * @return: 
   */
  void Sign(ZR& m,const UserSecretKey& usk,Sig& sig,const MasterPublicKey& mpk,const GroupSecretKey& gsk);
- ZR getGroupID();
- ZR getUserID();
+ bool Verify(ZR&m,const Sig& sig,const char* GroupID,const MasterPublicKey& mpk);
+ ZR Open(const MasterPublicKey& mpk,const GroupSecretKey& gsk,const Sig& sig);
+ relicxx::GT getDelta3();
+std::string getGroupID();
+ std::string getUserID();
 };
 }
