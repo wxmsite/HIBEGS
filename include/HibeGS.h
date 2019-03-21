@@ -3,7 +3,7 @@
  * @LastEditors: wxmsite
  * @Description: 
  * @Date: 2019-03-17 14:59:48
- * @LastEditTime: 2019-03-20 15:55:34
+ * @LastEditTime: 2019-03-21 11:01:53
  */
 #include "relic_api.h"
 #include "forwardsec.h"
@@ -14,14 +14,14 @@ class GroupSecretKey{
 public:
 
 	friend bool operator==(const GroupSecretKey& x, const GroupSecretKey& y){
-		return  (x.r1==y.r1==&&x.a0 == y.a0 && x.a2==y.a2&&x.a3==y.a3&&x.a4==y.a4&&x.a5==y.a5);
+		return  (x.a0 == y.a0 && x.a2==y.a2&&x.a3==y.a3&&x.a4==y.a4&&x.a5==y.a5);
 	}
 	friend bool operator!=(const GroupSecretKey& x, const GroupSecretKey& y){
 		return !(x==y);
 	}
 	void neuter();
 protected:
-  ZR r1;
+
 	relicxx::G2 a0;
 	relicxx::G2 a2;
 	relicxx::G2 a3;
@@ -86,7 +86,32 @@ protected:
 	friend class GMPfse;
 	friend class HibeGS;
 };
+class Sig{
+public:
 
+	friend bool operator==(const GroupSecretKey& x, const GroupSecretKey& y){
+		return  (x.c0 == y.c0 && x.c5==y.c5&&x.c6==y.c6&&x.e1==y.e1&&x.e2==y.e2&&x.e3==y.e3);
+	}
+	friend bool operator!=(const GroupSecretKey& x, const GroupSecretKey& y){
+		return !(x==y);
+	}
+	void neuter();
+protected:
+	relicxx::G2 c0;
+	relicxx::G2 c5;
+	relicxx::G2 c6;
+	relicxx::G2 e1;
+	relicxx::G2 e2;
+	relicxx::G2 e3;
+	template <class Archive>
+	  void serialize( Archive & ar )
+	{
+		ar(c0,c5,c6,e1,e2,e3);
+	}
+	friend class ::cereal::access;
+	friend class GMPfse;
+	friend class HibeGS;
+};
 class HibeGSPartialCiphertext{
 public:
 	HibeGSPartialCiphertext(){};
@@ -108,6 +133,7 @@ protected:
 	friend class GMPfse;
 	friend class HibeGS;
 };
+
 class HibeGSCiphertext: public HibeGSPartialCiphertext{
 public:
 	HibeGSCiphertext(){};
@@ -136,7 +162,7 @@ class HibeGS{
 	HibeGS(){};
 	~HibeGS() {};
 
-	void Setup(MasterPublicKey & mpk, relicxx::G2 & msk) const;
+	void Setup(MasterPublicKey& mpk, relicxx::G2& msk) const;
   
 	/**
   * @description: To define a HIBE, it is therefore required to give two algorithms Distill, Encr
@@ -149,7 +175,7 @@ class HibeGS{
 	* } 
   * @return: 
   */
-	void GroupSetup(const char* GroupID ,const relicxx::G2 & msk, GroupSecretKey & gsk ,const MasterPublicKey & mpk);
+	void GroupSetup(const char* GroupID ,const relicxx::G2& msk, GroupSecretKey& gsk ,const MasterPublicKey& mpk);
 	/**
   * @description: 
   * @param {
@@ -158,7 +184,7 @@ class HibeGS{
 	} 
   * @return: 
   */
-	void Join(const char* GroupID,const char* UserID,const GroupSecretKey & gsk,UserSecretKey & usk,const MasterPublicKey & mpk,const relicxx::G2 & msk);
+	void Join(const char* GroupID,const char* UserID,const GroupSecretKey& gsk,UserSecretKey& usk,const MasterPublicKey& mpk);
 	/**
   * @description: 
   * @param {
@@ -167,6 +193,8 @@ class HibeGS{
 	* } 
   * @return: 
   */
- void Sign(ZR & m,const UserSecretKey & usk);
+ void Sign(ZR& m,const UserSecretKey& usk,Sig& sig,const MasterPublicKey& mpk,const GroupSecretKey& gsk);
+ ZR getGroupID();
+ ZR getUserID();
 };
 }
