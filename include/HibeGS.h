@@ -3,13 +3,38 @@
  * @LastEditors: wxmsite
  * @Description: 
  * @Date: 2019-03-17 14:59:48
- * @LastEditTime: 2019-03-22 15:09:52
+ * @LastEditTime: 2019-03-22 23:30:44
  */
 #include "relic_api.h"
 #include "forwardsec.h"
 namespace forwardsec{
 class GMPfse;
 class HibeGS;
+class MasterPublicKey:  public virtual  baseKey{
+public:
+	friend bool operator==(const MasterPublicKey& x, const MasterPublicKey& y){
+		return  ((baseKey)x == (baseKey)y &&
+				x.l == y.l && x.hibeg1 == y.hibeg1&& x.hG2 == y.hG2&&x.n==y.n);
+	}
+	friend bool operator!=(const MasterPublicKey& x, const MasterPublicKey& y){
+		return !(x==y);
+	}
+
+protected:
+	unsigned int l;
+	relicxx::G1 hibeg1;
+	std::vector<relicxx::G2> hG2;
+	relicxx::GT n;
+	template <class Archive>
+	  void serialize( Archive & ar )
+	{
+		ar(::cereal::virtual_base_class<baseKey>(this),
+				l,hibeg1,hG2);
+	}
+	friend class ::cereal::access;
+	friend class GMPfse;
+	friend class HibeGS;
+};
 class GroupSecretKey{
 public:
 
@@ -26,7 +51,7 @@ protected:
 	relicxx::G2 a2;
 	relicxx::G2 a3;
 	relicxx::G2 a4;
-	relicxx::G2 a5;
+	relicxx::G1 a5;
 	template <class Archive>
 	  void serialize( Archive & ar )
 	{
@@ -50,7 +75,7 @@ protected:
 	relicxx::G2 b0;
 	relicxx::G2 b3;
 	relicxx::G2 b4;
-	relicxx::G2 b5;
+	relicxx::G1 b5;
 	template <class Archive>
 	  void serialize( Archive & ar )
 	{
@@ -60,32 +85,7 @@ protected:
 	friend class GMPfse;
 	friend class HibeGS;
 };
-class MasterPublicKey:  public virtual  baseKey{
-public:
-	friend bool operator==(const MasterPublicKey& x, const MasterPublicKey& y){
-		return  ((baseKey)x == (baseKey)y &&
-				x.l == y.l && x.hibeg1 == y.hibeg1&& x.hG1 == y.hG1 && x.hG2 == y.hG2&&x.n==y.n);
-	}
-	friend bool operator!=(const MasterPublicKey& x, const MasterPublicKey& y){
-		return !(x==y);
-	}
 
-protected:
-	unsigned int l;
-	relicxx::G2 hibeg1;
-	std::vector<relicxx::G1> hG1;
-	std::vector<relicxx::G2> hG2;
-	relicxx::GT n;
-	template <class Archive>
-	  void serialize( Archive & ar )
-	{
-		ar(::cereal::virtual_base_class<baseKey>(this),
-				l,hibeg1,hG1,hG2);
-	}
-	friend class ::cereal::access;
-	friend class GMPfse;
-	friend class HibeGS;
-};
 class Sig{
 public:
 
@@ -99,10 +99,10 @@ public:
 	void neuter();
 protected:
 	relicxx::G2 c0;
-	relicxx::G2 c5;
-	relicxx::G1 c6;
+	relicxx::G1 c5;
+	relicxx::G2 c6;
 	relicxx::G1 e1;
-	relicxx::G1 e2;
+	relicxx::G2 e2;
 	relicxx::GT e3;
 	relicxx::ZR r4;
 	relicxx::ZR k;

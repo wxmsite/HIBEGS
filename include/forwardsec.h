@@ -34,13 +34,10 @@ public:
 
 class baseKey{
 public:
-	relicxx::G1 gG1;
-	relicxx::G2 gG2;
-	relicxx::G1 g2G1;
-	relicxx::G2 g2G2;
+	relicxx::G1 g;
+	relicxx::G2 g2;
 	friend bool operator==(const baseKey& x, const baseKey& y){
-		return (x.gG1 == y.gG1 && x.gG2 == y.gG2 && x.g2G1 == y.g2G1
-				&& x.g2G2 == y.g2G2);
+		return (x.g == y.g && x.g2 == y.g2 );
 	}
 	friend bool operator!=(const baseKey& x, const baseKey& y){
 		return !(x==y);
@@ -51,7 +48,7 @@ public:
 // from a derived class wouldn't work
 template <class Archive>
 void serialize( Archive & ar, baseKey & b )
-{ ar( b.gG1,b.gG2,b.g2G1,b.g2G2 ); }
+{ ar( b.g,b.g2 ); }
 
 }
 #endif /* SRC_FORWARDSEC_H_ */

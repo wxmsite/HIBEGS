@@ -3,6 +3,7 @@
 #include "relic_api.h"
 #include "forwardsec.h"
 using namespace relicxx;
+using namespace std;
 namespace forwardsec{
 TEST(GroupSetup,test){
     //初始化relic
@@ -20,7 +21,9 @@ TEST(GroupSetup,test){
     hibegs->join("science","www",gsk,usk,mpk);
     hibegs->sign(m,usk,sig,mpk,gsk);
     EXPECT_TRUE(hibegs->verify(m,sig,"science",mpk));
-    EXPECT_EQ(hibegs->open(mpk,gsk,sig),group.hashListToZR("www"));
+    EXPECT_TRUE(hibegs->open(mpk,gsk,sig)==group.hashListToZR("www"));
+    cout<<hibegs->open(mpk,gsk,sig)<<endl;
+    cout<<group.hashListToZR("www")<<endl;
 }
 int main(int argc, char **argv)
 {
