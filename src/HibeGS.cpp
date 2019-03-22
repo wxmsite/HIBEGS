@@ -3,13 +3,13 @@
  * @LastEditors: wxmsite
  * @Description: 
  * @Date: 2019-03-17 15:15:09
- * @LastEditTime: 2019-03-21 17:13:48
+ * @LastEditTime: 2019-03-22 13:55:07
  */
 #include "HibeGS.h"
 namespace forwardsec{
 using namespace std;
 using namespace relicxx;
-void  HibeGS::Setup(MasterPublicKey& mpk, G2& msk) const
+void  HibeGS::setup(MasterPublicKey& mpk, G2& msk) const
 {   
     const unsigned int l = 4;
     ZR alpha = group.randomZR();
@@ -32,7 +32,7 @@ void  HibeGS::Setup(MasterPublicKey& mpk, G2& msk) const
     return;
 }
 
-void HibeGS::GroupSetup(const std::string GroupID ,const G2& msk,GroupSecretKey& gsk,const MasterPublicKey& mpk){
+void HibeGS::groupSetup(const std::string GroupID ,const G2& msk,GroupSecretKey& gsk,const MasterPublicKey& mpk){
     //将字符串GroupID转为e,e=Distill(GroupID)
     const ZR e = group.hashListToZR(GroupID);
     const ZR r1 = group.randomZR();
@@ -44,7 +44,7 @@ void HibeGS::GroupSetup(const std::string GroupID ,const G2& msk,GroupSecretKey&
     gsk.a4 = group.exp(mpk.hG2.at(4),r1);
     gsk.a5 = group.exp(mpk.gG2,r1);
 }
-void HibeGS::Join(const char*GroupID,const char* UserID,const GroupSecretKey& gsk,UserSecretKey& usk,const MasterPublicKey& mpk){
+void HibeGS::join(const char*GroupID,const char* UserID,const GroupSecretKey& gsk,UserSecretKey& usk,const MasterPublicKey& mpk){
     //此处将(groupID,userID)转为e,e=Distill((GroupID,UserID),mpk)
     const ZR e = group.hashListToZR(UserID);
     const ZR r2 = group.randomZR();
@@ -58,7 +58,7 @@ void HibeGS::Join(const char*GroupID,const char* UserID,const GroupSecretKey& gs
    usk.b4=group.mul(gsk.a4,group.exp(mpk.hG2.at(4),r2));
    usk.b5=group.mul(gsk.a5,group.exp(mpk.gG2,r2));
 }
-void HibeGS::Sign(ZR& m,const UserSecretKey& usk,Sig& sig,const MasterPublicKey& mpk,const GroupSecretKey& gsk){
+void HibeGS::sign(const ZR& m,const UserSecretKey& usk,Sig& sig,const MasterPublicKey& mpk,const GroupSecretKey& gsk){
     const ZR GUserID=group.hashListToZR(getUserID());
     const ZR GGroupID = group.hashListToZR(getGroupID());
     //G(UserID),G(r4),k are public
@@ -81,34 +81,41 @@ void HibeGS::Sign(ZR& m,const UserSecretKey& usk,Sig& sig,const MasterPublicKey&
     
     sig.e3=group.exp(group.pair(mpk.g2G1, mpk.hibeg1), k);
     sig.e3=group.mul(sig.e3,group.exp(mpk.n,GUserID));
+    sig.r4=r4;
+    sig.k=k;
 
 }
-bool HibeGS::Verify(ZR& m,const Sig& sig,const char* GroupID,const MasterPublicKey& mpk){
+bool HibeGS::verify(const ZR& m,const Sig& sig,const char* GroupID,const MasterPublicKey& mpk){
     const ZR GGroupID = group.hashListToZR(getGroupID());
+    const ZR GUserID=group.hashListToZR(getUserID());
+    const ZR y=sig.r4;
     const ZR t=group.randomZR();
-    const GT M=group.randomGT();
+    const GT M=group.randomGT(); 
+    const ZR k=sig.k;
     relicxx::G1 d1=group.exp(mpk.gG1,t);
     relicxx::G1 d2=group.mul(mpk.hG1.at(0),group.exp(mpk.hG1.at(1),GGroupID));
     d2=group.mul(d2,group.mul(group.exp(mpk.hG1.at(3),m),sig.c6));
     relicxx::GT delta3=group.mul(M,group.exp(group.pair(mpk.g2G1, mpk.hibeg1), t));
     relicxx::GT result1=group.mul(delta3,group.div(group.pair(d2,sig.c5),group.pair(d1,sig.c0)));
-    return M==result1;
+    
+    return M==result1&&
+    sig.c6==group.mul(group.exp(mpk.hG1.at(2),GUserID),group.exp(mpk.hG1.at(4),y))&&
+    sig.e1==group.exp(mpk.gG1,k)&&
+    sig.e2==group.exp(group.mul(mpk.hG1.at(0),group.exp(mpk.hG1.at(1),GGroupID)),k)&&
+    sig.e3==group.mul(group.exp(mpk.n,GUserID),group.exp(group.pair(mpk.g2G1, mpk.hibeg1),k));
 }
-ZR HibeGS::Open(const MasterPublicKey& mpk,const GroupSecretKey& gsk,const Sig& sig){
+ZR HibeGS::open(const MasterPublicKey& mpk,const GroupSecretKey& gsk,const Sig& sig){
     const ZR GUserID=group.hashListToZR(getUserID());
-    relicxx::GT t=group.div(group.pair(sig.e1,gsk.a0),group.pair(sig.e2,gsk.a5));
-    relicxx:GT delta3=getDelta3();
-    if(delta3==group.mul(group.exp(mpk.n,GUserID),t))
+    relicxx::GT t=group.exp(group.pair(mpk.g2G1,mpk.hibeg1),sig.k);
+    
+    if(sig.e3==group.mul(group.exp(mpk.n,GUserID),t))
         return GUserID;
-
-}
-relicxx::GT HibeGS::getDelta3(){
-    return group.randomGT();
 }
 string HibeGS::getGroupID(){
-    return "123";
+    return "science";
 }
 string HibeGS::getUserID(){
-    return "123";
+    return "www";
 }
+
 }
