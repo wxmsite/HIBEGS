@@ -22,8 +22,7 @@ TEST(GroupSetup,test){
     hibegs->sign(m,usk,sig,mpk,gsk);
     EXPECT_TRUE(hibegs->verify(m,sig,"science",mpk));
     EXPECT_TRUE(hibegs->open(mpk,gsk,sig)==group.hashListToZR("www"));
-    cout<<hibegs->open(mpk,gsk,sig)<<endl;
-    cout<<group.hashListToZR("www")<<endl;
+    
 }
 int main(int argc, char **argv)
 {
