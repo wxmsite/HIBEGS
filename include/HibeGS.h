@@ -3,16 +3,21 @@
  * @LastEditors: wxmsite
  * @Description: 
  * @Date: 2019-03-17 14:59:48
- * @LastEditTime: 2019-03-22 23:30:44
+ * @LastEditTime: 2019-03-24 19:13:17
  */
 #include "relic_api.h"
 #include "forwardsec.h"
+using namespace std;
 namespace forwardsec{
 class GMPfse;
 class HibeGS;
+
 class MasterPublicKey:  public virtual  baseKey{
+	
 public:
-	friend bool operator==(const MasterPublicKey& x, const MasterPublicKey& y){
+  MasterPublicKey(){};
+	~MasterPublicKey(){};
+ 	friend bool operator==(const MasterPublicKey& x, const MasterPublicKey& y){
 		return  ((baseKey)x == (baseKey)y &&
 				x.l == y.l && x.hibeg1 == y.hibeg1&& x.hG2 == y.hG2&&x.n==y.n);
 	}
@@ -21,20 +26,22 @@ public:
 	}
 
 protected:
+
 	unsigned int l;
 	relicxx::G1 hibeg1;
-	std::vector<relicxx::G2> hG2;
+	vector<relicxx::G2> hG2;
 	relicxx::GT n;
 	template <class Archive>
 	  void serialize( Archive & ar )
 	{
 		ar(::cereal::virtual_base_class<baseKey>(this),
-				l,hibeg1,hG2);
+				l,hibeg1,hG2,n);
 	}
 	friend class ::cereal::access;
 	friend class GMPfse;
 	friend class HibeGS;
 };
+
 class GroupSecretKey{
 public:
 
@@ -61,6 +68,7 @@ protected:
 	friend class GMPfse;
 	friend class HibeGS;
 };
+
 class UserSecretKey{
 public:
 
@@ -85,7 +93,11 @@ protected:
 	friend class GMPfse;
 	friend class HibeGS;
 };
-
+/**
+ * @description: 
+ * @param {type} 
+ * @return: 
+ */
 class Sig{
 public:
 
@@ -121,43 +133,77 @@ class HibeGS{
 	relicxx::PairingGroup group;
 	HibeGS(){};
 	~HibeGS() {};
-
+ /**
+  * @description: The trusted authority generates its mpk and msk
+  * @param {
+	* mpk, master public key,
+	*  msk,master secret key
+	* } 
+  * @return: 
+  */
 	void setup(MasterPublicKey& mpk, relicxx::G2& msk) const;
   
 	/**
-  * @description: To define a HIBE, it is therefore required to give two algorithms Distill, Encr
-	    instead of the single Encrypt. We call schemes definedthis way canonical
+  * @description: use mpk,msk and GroupID to generate a group with gsk(a0,a2,a3,a4,a5)
   * @param {
-	* GroupID:群ID,
-	*  msk:master私钥,
-	*  gsk:群私钥
-	*  mpk:master公钥
+	* GroupID:group id,
+	*  msk:master secret  key,
+	*  gsk:group secret key
+	*  mpk:master public key
 	* } 
   * @return: 
   */
-	void groupSetup(const std::string GroupID ,const relicxx::G2& msk, GroupSecretKey& gsk ,const MasterPublicKey& mpk);
+	void groupSetup(const string& GroupID ,const relicxx::G2& msk, GroupSecretKey& gsk ,const MasterPublicKey& mpk);
 	/**
   * @description: 
   * @param {
-	* UserID:群员ID,
-	* usk:群员私钥
+	* UserID:user id,
+	* usk:user secret key
 	} 
   * @return: 
   */
-	void join(const char* GroupID,const char* UserID,const GroupSecretKey& gsk,UserSecretKey& usk,const MasterPublicKey& mpk);
+  bool join(const string& GroupID,const string UserID);
+	void join(const string& GroupID,const string& UserID,const GroupSecretKey& gsk,UserSecretKey& usk,const MasterPublicKey& mpk);
 	/**
   * @description: 
   * @param {
-	* m:需要usk加密的消息,
-	* usk:用户私钥
+	* m:the message to be signed,
+	* usk:user secret key
+	* sig: the signature
 	* } 
   * @return: 
   */
- void sign(const relicxx::ZR& m,const UserSecretKey& usk,Sig& sig,const MasterPublicKey& mpk,const GroupSecretKey& gsk);
- bool verify(const relicxx::ZR&m,const Sig& sig,const char* GroupID,const MasterPublicKey& mpk);
+ void sign(const relicxx::ZR& m,const UserSecretKey& usk,Sig& sig,const MasterPublicKey& mpk);
+ /**
+  * @description: 
+  * @param {type} 
+  * @return: 
+  */
+ bool verify(const relicxx::ZR&m,const Sig& sig,const string& GroupID,const MasterPublicKey& mpk);
+ /**
+  * @description: The Group Manager goes through all user identifiers and find the one who signed m
+  * @param {type} 
+  * @return: 
+  */
  relicxx::ZR open(const MasterPublicKey& mpk,const GroupSecretKey& gsk,const Sig& sig);
-std::string getGroupID();
- std::string getUserID();
+/**
+ * @description: 
+ * @param {null} 
+ * @return: 
+ */
+string getGroupID();
+ /**
+  * @description: 
+  * @param {null} 
+  * @return: 
+  */
+ string getUserID();
+
+vector<string> getGroupMember(string GroupID);
+
+MasterPublicKey getMpk();
+
+relicxx::G2 getMsk();
 
 };
 }

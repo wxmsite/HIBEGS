@@ -6,7 +6,7 @@ using namespace relicxx;
 using namespace std;
 namespace forwardsec{
 TEST(GroupSetup,test){
-    //初始化relic
+    //init relic
     relicResourceHandle relic;
     HibeGS *hibegs=new HibeGS();
     MasterPublicKey mpk;
@@ -19,7 +19,7 @@ TEST(GroupSetup,test){
     hibegs->setup(mpk,msk);
     hibegs->groupSetup("science",msk,gsk,mpk);
     hibegs->join("science","www",gsk,usk,mpk);
-    hibegs->sign(m,usk,sig,mpk,gsk);
+    hibegs->sign(m,usk,sig,mpk);
     EXPECT_TRUE(hibegs->verify(m,sig,"science",mpk));
     EXPECT_TRUE(hibegs->open(mpk,gsk,sig)==group.hashListToZR("www"));
     
@@ -27,7 +27,6 @@ TEST(GroupSetup,test){
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
-
     return RUN_ALL_TESTS();
 }
 }

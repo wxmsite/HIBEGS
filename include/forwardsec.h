@@ -14,24 +14,6 @@
 #include "relic_api.h"
 
 namespace forwardsec{
-class BadCiphertext : public std::invalid_argument
-{
-public:
-    BadCiphertext(std::string const& error)
-        : std::invalid_argument(error)
-    {}
-};
-
-class PuncturedCiphertext : public BadCiphertext
-{
-public:
-	PuncturedCiphertext(std::string const& error)
-        : BadCiphertext(error)
-    {}
-};
-
-
-
 class baseKey{
 public:
 	relicxx::G1 g;
