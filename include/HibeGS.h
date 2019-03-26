@@ -3,7 +3,7 @@
  * @LastEditors: wxmsite
  * @Description: 
  * @Date: 2019-03-17 14:59:48
- * @LastEditTime: 2019-03-24 19:13:17
+ * @LastEditTime: 2019-03-26 10:41:01
  */
 #include "relic_api.h"
 #include "forwardsec.h"
@@ -143,6 +143,8 @@ class HibeGS{
   */
 	void setup(MasterPublicKey& mpk, relicxx::G2& msk) const;
   
+
+	bool groupSetup(const string& groupID);
 	/**
   * @description: use mpk,msk and GroupID to generate a group with gsk(a0,a2,a3,a4,a5)
   * @param {
@@ -153,7 +155,7 @@ class HibeGS{
 	* } 
   * @return: 
   */
-	void groupSetup(const string& GroupID ,const relicxx::G2& msk, GroupSecretKey& gsk ,const MasterPublicKey& mpk);
+	void groupSetup(const string& groupID ,const relicxx::G2& msk, GroupSecretKey& gsk ,const MasterPublicKey& mpk);
 	/**
   * @description: 
   * @param {
@@ -162,8 +164,10 @@ class HibeGS{
 	} 
   * @return: 
   */
-  bool join(const string& GroupID,const string UserID);
-	void join(const string& GroupID,const string& UserID,const GroupSecretKey& gsk,UserSecretKey& usk,const MasterPublicKey& mpk);
+  bool join(const string& groupID,const string userID);
+	void join(const string& groupID,const string& userID,const GroupSecretKey& gsk,UserSecretKey& usk,const MasterPublicKey& mpk);
+
+void sign(const string message);
 	/**
   * @description: 
   * @param {
@@ -179,7 +183,7 @@ class HibeGS{
   * @param {type} 
   * @return: 
   */
- bool verify(const relicxx::ZR&m,const Sig& sig,const string& GroupID,const MasterPublicKey& mpk);
+ bool verify(const relicxx::ZR& m,const Sig& sig,const string& groupID,const MasterPublicKey& mpk);
  /**
   * @description: The Group Manager goes through all user identifiers and find the one who signed m
   * @param {type} 
@@ -199,11 +203,13 @@ string getGroupID();
   */
  string getUserID();
 
-vector<string> getGroupMember(string GroupID);
+vector<string> getGroupMember(string groupID);
 
 MasterPublicKey getMpk();
 
 relicxx::G2 getMsk();
+
+
 
 };
 }
