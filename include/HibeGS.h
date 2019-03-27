@@ -3,7 +3,7 @@
  * @LastEditors: wxmsite
  * @Description: 
  * @Date: 2019-03-17 14:59:48
- * @LastEditTime: 2019-03-26 10:41:01
+ * @LastEditTime: 2019-03-27 11:03:23
  */
 #include "relic_api.h"
 #include "forwardsec.h"
@@ -103,7 +103,7 @@ public:
 
 	friend bool operator==(const Sig& x, const Sig& y){
 		return  (x.c0 == y.c0 && x.c5==y.c5&&x.c6==y.c6&&x.e1==y.e1&&x.e2==y.e2&&x.e3==y.e3&&
-		x.r4==y.r4&&x.k==y.k);
+		x.x==y.x&&x.y==y.y&&x.z==y.z);
 	}
 	friend bool operator!=(const Sig& x, const Sig& y){
 		return !(x==y);
@@ -116,8 +116,9 @@ protected:
 	relicxx::G1 e1;
 	relicxx::G2 e2;
 	relicxx::GT e3;
-	relicxx::ZR r4;
-	relicxx::ZR k;
+	relicxx::ZR x;
+	relicxx::ZR y;
+	relicxx::ZR z;
 	template <class Archive>
 	  void serialize( Archive & ar )
 	{
@@ -143,7 +144,7 @@ class HibeGS{
   */
 	void setup(MasterPublicKey& mpk, relicxx::G2& msk) const;
   
-
+  
 	bool groupSetup(const string& groupID);
 	/**
   * @description: use mpk,msk and GroupID to generate a group with gsk(a0,a2,a3,a4,a5)
@@ -209,7 +210,41 @@ MasterPublicKey getMpk();
 
 relicxx::G2 getMsk();
 
+/*注册读者身份，本地产生公私钥对，称为rpk，rsk，本地生成公私钥对需要另用算法，而且是为了安全考虑，
+然后提交个人信息及公钥到区块链，所有人上来都只能注册读者身份，要审稿必须经过认证，
+要提交论文看需求决定是否需要认证
+*/
+void register_reader();
 
+//认证对应方向的审稿人身份
+void authenticate_reviewer();
 
+/*投票选出主席,并且将gsk交给主席
+想了两种方案：
+1.之前认证审稿人身份不产生usk，直到选出了主席认证中心为主席产生gsk，
+再给这些已经认证了审稿身份的人发放usk,发放方式为用他们注册读者身份时的公钥加密，
+然后使用他们的私钥解密获取usk
+2.信任中心（即我们，当然受监督）提前生成gsk，每一个人认证审稿人身份时就直接把usk给他，
+选出主席后将gsk交给主席
+注意：
+每个审稿人共拥有两对公私钥对
+1.rpk、rsk，用对消息的加密
+2.（userID,usk)，用于签名
+*/
+void vote_chariman();
+
+/*
+提交论文者需要加入论文对应方向比如计算机的群，加入后主席将论文提交者的usk返回，
+然后作者将自己的rpk和群签名（tx1）以及自己的rsk对id签名发送过去
+每个论文提交者共拥有两对公私钥对
+1.rpk、rsk，用于消息的加密和签名
+2.提交论文的（userID,usk）用于签名
+*/
+void submit_paper();
+/*每个人最多有三对公私钥对
+1.rpk,rsk
+2.作为审稿人的公私钥对（userID,usk1)
+3.作为论文提交者的公私钥对（userID，usk2）
+*/
 };
 }

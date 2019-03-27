@@ -3,7 +3,7 @@
  * @LastEditors: wxmsite
  * @Description: 
  * @Date: 2019-03-17 15:15:09
- * @LastEditTime: 2019-03-26 10:42:45
+ * @LastEditTime: 2019-03-26 21:03:53
  */
 #include "HibeGS.h"
 namespace forwardsec{
@@ -26,7 +26,6 @@ void  HibeGS::setup(MasterPublicKey& mpk, G2& msk) const
     }
     mpk.n = group.randomGT();
     msk = group.exp(mpk.g2, alpha);
-    return;
 }
 
 bool HibeGS::groupSetup(const string& groupID){
@@ -36,7 +35,7 @@ bool HibeGS::groupSetup(const string& groupID){
     GroupSecretKey gsk;
     MasterPublicKey mpk;
     groupSetup(groupID,msk,gsk,mpk);
-    //返回gsk给group manager，mpk有9部分，可以考虑分给九个人，另说
+    //返回gsk给group manager,先假设只返回给一个人
 
     return true;
 }
@@ -111,17 +110,17 @@ void HibeGS::sign(const ZR& m,const UserSecretKey& usk,Sig& sig,const MasterPubl
     
     sig.e3=group.exp(group.pair(mpk.g2, mpk.hibeg1), k);
     sig.e3=group.mul(sig.e3,group.exp(mpk.n,gUserID));
-    sig.r4=r4;
-    sig.k=k;
-
+    sig.x=gUserID;
+    sig.y=r4;
+    sig.z=k;
 }
+
 bool HibeGS::verify(const ZR& m,const Sig& sig,const string& groupID,const MasterPublicKey& mpk){
     const ZR gGroupID = group.hashListToZR(getGroupID());
-    const ZR gUserID=group.hashListToZR(getUserID());
-    const ZR y=sig.r4;
+    const ZR y=sig.y;
     const ZR t=group.randomZR();
     const GT M=group.randomGT(); 
-    const ZR k=sig.k;
+    const ZR k=sig.z;
     relicxx::G1 d1=group.exp(mpk.g,t);
     relicxx::G2 d2=group.mul(mpk.hG2.at(0),group.exp(mpk.hG2.at(1),gGroupID));
     d2=group.exp(group.mul(d2,group.mul(group.exp(mpk.hG2.at(3),m),sig.c6)),t);
@@ -129,15 +128,15 @@ bool HibeGS::verify(const ZR& m,const Sig& sig,const string& groupID,const Maste
     relicxx::GT result=group.mul(delta3,group.div(group.pair(sig.c5,d2),group.pair(d1,sig.c0)));
     
     return M==result&&
-    sig.c6==group.mul(group.exp(mpk.hG2.at(2),gUserID),group.exp(mpk.hG2.at(4),y))&&
+    sig.c6==group.mul(group.exp(mpk.hG2.at(2),sig.x),group.exp(mpk.hG2.at(4),y))&&
     sig.e1==group.exp(mpk.g,k)&&
     sig.e2==group.exp(group.mul(mpk.hG2.at(0),group.exp(mpk.hG2.at(1),gGroupID)),k)&&
-    sig.e3==group.mul(group.exp(mpk.n,gUserID),group.exp(group.pair(mpk.hibeg1, mpk.g2),k));
-    
+    sig.e3==group.mul(group.exp(mpk.n,sig.x),group.exp(group.pair(mpk.hibeg1, mpk.g2),k));
 }
+
 ZR HibeGS::open(const MasterPublicKey& mpk,const GroupSecretKey& gsk,const Sig& sig){
     const ZR gUserID=group.hashListToZR(getUserID());
-    relicxx::GT t=group.exp(group.pair(mpk.hibeg1,mpk.g2),sig.k);
+    relicxx::GT t=group.exp(group.pair(mpk.hibeg1,mpk.g2),sig.z);
     //goes through all user identifiers here
     if(sig.e3==group.mul(group.exp(mpk.n,gUserID),t))
         return gUserID;
@@ -147,6 +146,7 @@ ZR HibeGS::open(const MasterPublicKey& mpk,const GroupSecretKey& gsk,const Sig& 
 string HibeGS::getGroupID(){
     return "science";
 }
+//可能需要多种场景
 string HibeGS::getUserID(){
     return "www";
 }
