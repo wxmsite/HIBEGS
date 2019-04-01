@@ -150,9 +150,9 @@ public:
 		template <class Archive>
 		void load( Archive & ar)
 		{
-			std::vector<uint8_t>data(BN_BYTES);
+			std::vector<uint8_t>data(DV_BYTES);
 			ar(data);
-			bn_read_bin(z,&data[0],BN_BYTES);
+			bn_read_bin(z,&data[0],DV_BYTES);
 		}
 //		template <>
 //		void save<cereal::JSONOutputArchive>(cereal::JSONOutputArchive & ar) const{
@@ -163,9 +163,9 @@ public:
 //		template <>
 //		void load<cereal::JSONInputArchive>(cereal::JSONInputArchive & ar)
 //		{
-//			std::vector<uint8_t>data(BN_BYTES);
+//			std::vector<uint8_t>data(DV_BYTES);
 //			ar.loadBinaryValue(&data[0],data.size());
-//			bn_read_bin(z,&data[0],BN_BYTES);
+//			bn_read_bin(z,&data[0],DV_BYTES);
 //		}
 	friend ZR hashToZR(const bytes &);
 	friend ZR power(const ZR&, int);
