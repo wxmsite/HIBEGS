@@ -163,14 +163,14 @@ bool ZR::ismember(void) const
 }
 
 std::vector<uint8_t> ZR::getBytes() const {
-	std::vector<uint8_t>data(BN_BYTES);
-	bn_write_bin(&data[0], BN_BYTES, z);
+	std::vector<uint8_t>data(DV_BYTES);
+	bn_write_bin(&data[0], DV_BYTES, z);
 	return data;
 }
 
 ostream& operator<<(ostream& s, const ZR& zr)
 {
-	int length =BN_BYTES;
+	int length =DV_BYTES;
 	char data[length + 1];
 	memset(data, 0, length);
 	bn_write_str(data, length, zr.z, DECIMAL);

@@ -51,7 +51,7 @@ void HibeGS::groupSetup(const std::string& groupID ,const G2& msk,GroupSecretKey
     gsk.a5 = group.exp(mpk.g,r1);
 }
 
-bool HibeGS::join(const string& groupID,const string userID){
+bool HibeGS::join(const string& groupID,const string &userID){
     GroupSecretKey gsk;
     MasterPublicKey mpk(getMpk());
     UserSecretKey usk;
