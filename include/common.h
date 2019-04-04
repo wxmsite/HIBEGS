@@ -61,9 +61,12 @@ enum Other_type { Str_t = 8, listStr_t = 9, int_t = 10, listInt_t = 11, list_t =
 
 #define FP_STR FP_BYTES * 2 + 1
 #define G1_LEN (FP_BYTES * 2) + 2
-/* KSS_P508 */
-#define G2_LEN G1_LEN
-#define GT_LEN G1_LEN
+
+/* BN_P256 */
+#define G2_LEN (FP_BYTES * 4) + 4
+#define GT_LEN (FP_BYTES * 12) + 12
+
+#endif
 
 // status_t g1_read_bin(g1_t g, uint8_t *data, int data_len);
 // status_t g1_write_bin(g1_t g, uint8_t *data, int data_len, int comp);
@@ -77,4 +80,4 @@ enum Other_type { Str_t = 8, listStr_t = 9, int_t = 10, listInt_t = 11, list_t =
 // status_t gt_write_bin(gt_t g, uint8_t *data, int data_len);
 // status_t gt_write_str(gt_t g, uint8_t *data, int data_len);
 
-#endif
+
