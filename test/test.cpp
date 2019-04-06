@@ -4,6 +4,7 @@
 #include "forwardsec.h"
 #include <cereal/archives/binary.hpp>
 #include <sstream>
+#include <math.h>
 using namespace relicxx;
 using namespace std;
 namespace forwardsec
@@ -22,12 +23,50 @@ char *inttohex(int a)
     buffer[2] = '\0';
     return buffer;
 }
+
 TEST(GroupSetup, test)
 {
     //init relic
     relicResourceHandle relic;
 
     PairingGroup group;
+    relicxx::ZR zr = group.randomZR();
+    cout << zr << endl;
+    uint8_t bin[RELIC_BN_BITS / 8 + 1];
+
+    relicxx::ZR z2;
+    int len = CEIL(RELIC_BN_BITS, 8);
+    bn_write_bin(bin, len, zr.z);
+    for (int i = 0; i < len; i++)
+        cout << bin[i];
+    cout << endl;
+    //bin to str
+    string str = "";
+    for (int i = 96; i < len; i++)
+    {
+        int m = atoi(to_string((unsigned int)bin[i]).c_str());
+        const char *a = inttohex(m);
+        str += a;
+    }
+    cout << endl;
+    cout << str << endl;
+    cout << str.length() << " " << len << endl;
+
+    //str to bin
+    uint8_t bin2[len];
+    for (int i = 0; i < 96; i++)
+        bin2[i] = '\0';
+    for (int i = 0; i < str.length(); i += 2)
+    {
+        std::string pair = str.substr(i, 2);
+        cout << pair;
+        bin2[i / 2+96] = ::strtol(pair.c_str(), 0, 16);
+    }
+    cout << endl;
+
+    bn_read_bin(z2.z, bin2, len);
+    cout << z2;
+    //cout << z2 << endl;
     /* char *str = "141801544464023546";
     char *str2 = "11347850211810585423";
     char *str3 = "1820789979809844439";
@@ -38,6 +77,7 @@ TEST(GroupSetup, test)
     relicxx::G2 g;
     int len = FP_BYTES;
     
+
     fp_read_str(g.g->x[0], str, len, BASE);
     str += len;
     fp_read_str(g.g->x[1], str2, len, BASE);
@@ -64,7 +104,7 @@ TEST(GroupSetup, test)
     cout << g.g->norm<<endl; 
     cout<<g; */
 
-    relicxx::G2 g = group.randomG2();
+    /* relicxx::G2 g = group.randomG2();
     relicxx::G2 g2;
     relicxx::G2 g3;
     int len = 4 * FP_BYTES + 1;
@@ -110,7 +150,7 @@ TEST(GroupSetup, test)
     g2_read_bin(g3.g, bin2, l);
     cout << "g3:" << g3;
     if (g2_cmp(g.g, g3.g) == CMP_EQ)
-        cout << "eq2";
+        cout << "eq2"; */
 
     /* uint8_t bin2[4 * FP_BYTES + 1];
     ep2_set_infty(g.g);
