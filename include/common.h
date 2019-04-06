@@ -74,7 +74,7 @@ enum Other_type { Str_t = 8, listStr_t = 9, int_t = 10, listInt_t = 11, list_t =
 
 // status_t g2_read_bin(g2_t g, uint8_t *data, int data_len);
 // status_t g2_write_bin(g2_t g, uint8_t *data, int data_len);
-// status_t g2_write_str(g2_t g, uint8_t *data, int data_len);
+status_t g2_read_str(g2_t g,char* str);
 
 // status_t gt_read_bin(gt_t g, uint8_t *data, int data_len);
 // status_t gt_write_bin(gt_t g, uint8_t *data, int data_len);

@@ -365,46 +365,7 @@ class G2
 		g2_copy(g, const_cast<G2 &>(w).g);
 		isInit = true;
 	}
-	G2(std::vector<uint8_t> data)
-	{
-		error_if_relic_not_init();
-		
-		//std::string str = "f400af00002c00f40367300f9a40f40000000005190128f0c19d7b9d12dc00bb0350bd13f808f92009c9dbf0000de9d073000009fa309f002d002bfe0aebe00bb0de00ed00ed4edea51000dcf80dc0db0e0210c001b8600008c160d5112e0";
-		char *str = "f400af00002c00f40367300f9a40f40000000005190128f0c19d7b9d12dc00bb0350bd13f808f92009c9dbf0000de9d073000009fa309f002d002bfe0aebe00b";
-		/* bytes b(str.begin(), str.end());
-		//g2_map(g, &b[0], b.size());
-		std::vector<uint8_t> data2;
-		data2.reserve(str.size());
-		for (int i = 0; i < str.length(); i += 2)
-		{
-			std::string pair = str.substr(i, 2);
-			data2.push_back(::strtol(pair.c_str(), 0, 16));
-		}
-		for (int i = 0; i < data2.size(); ++i)
-			printf("%X", data2[i]);
-		std::cout<<std::endl;
-		g2_write_str(g, &data2[0], data2.size()); */
-		//fp_read_str(g, (const char *) str, strlen(str), DECIMAL);
-		 
-		int G2_STR = G2_LEN * 4;
-		int len = FP_BYTES * 2 + 1;
-		g2_set_infty(g);
-		
-		 cout<<123;
-		std::cout<<g;
-		fp_write_str(str, len, g->x[0], BASE);
-		str += len;
-		std::cout<<str;
-		fp_write_str(str, len, g->x[1], BASE);
-		str += len;
-		std::cout<<str;
-		fp_write_str(str, len, g->y[0], BASE);
-		str += len;
-		std::cout<<str;
-		fp_write_str(str, len, g->y[1], BASE);
-		isInit = true;
-	}
-
+	
 	~G2()
 	{
 		if (isInit)

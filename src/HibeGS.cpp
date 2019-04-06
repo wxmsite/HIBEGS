@@ -157,4 +157,5 @@ relicxx::G2 HibeGS::getMsk(){
     //此处加入信任中心后台获取自己的usk操作
     return group.randomG2();
 }
+
 }

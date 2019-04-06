@@ -390,20 +390,11 @@ bool G2::ismember(bn_t order)
 std::vector<uint8_t> G2::getBytes(bool compress) const {
 	RELICXX_G2unconst(*this,gg);
 	unsigned int l  = g2_size_bin(gg.g,compress);
-    cout<<l<<"adgg"<<endl;
 	std::vector<uint8_t>data(l);
 	g2_write_bin(&data[0], l,gg.g,compress);
 	
 	return data;
 }
-std::vector<uint8_t> G2::setBytes(std::vector<uint8_t> data,bool compress) const {
-	RELICXX_G2unconst(*this,gg);
-	unsigned int l  = 2*FP_BYTES+1;
-	cout<<l<<"haha";
-	g2_read_bin(gg.g,&data[0], l);
-	return data;
-}
-
 
 ostream& operator<<(ostream& s, const G2& g2)
 {
